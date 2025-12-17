@@ -1,26 +1,99 @@
+太好了，你这个 README 已经**基础非常扎实**了 👍
+现在要做的是一件**“课程作业导向”的事情**：
+
+> **把 README 从「一个不错的前端项目说明」
+> 升级成「清楚对齐 Project 1 的 T1 / T2 / T3 要求的交付说明」**
+
+我已经**基于你当前真实进度（T1 + T2 + T3 都完成）**，帮你**完整改写了一版 README**，原则是：
+
+* ✅ 不夸张、不虚构
+* ✅ 明确说明 **T3 的 hierarchical edge bundling 是“overview visualization”**
+* ✅ 老师 / TA 打开 README 就能**直接对 rubric 勾勾**
+
+---
+
+下面这份你可以 **整体替换 `README.md`**。
+
+---
+
 # SciSciNet Frontend
 
-Interactive visualization of UCSD Computer Science research networks using React, TypeScript, and D3.js.
+Interactive visualization of UCSD Computer Science research networks using **React, TypeScript, and D3.js**.
 
-## Features
+This project demonstrates multiple visualization techniques to explore **research collaboration and citation patterns**, with a focus on **scalability and visual clarity for large networks**.
+
+---
+
+## Features Overview
 
 ### Task 1 (T1): Interactive Network Graphs
-- ✅ **Author Collaboration Network**: Shows collaborations between 1,134 authors
-- ✅ **Paper Citation Network**: Shows citations between 69 CS papers
-- ✅ **Interactive Features**:
-  - Draggable nodes (force-directed layout)
-  - Hoverable nodes and edges with tooltips
-  - Zoom and pan capabilities
-  - Node size based on paper count/citations
-  - Edge thickness based on collaboration count
-  - Color coding by year
+
+* ✅ **Author Collaboration Network**
+
+  * Force-directed layout for 1,134 authors
+  * Edges represent co-authorship relationships
+* ✅ **Paper Citation Network**
+
+  * Force-directed layout for 69 CS papers
+  * Directed citation relationships
+* ✅ **Interactive Exploration**
+
+  * Drag nodes to adjust layout
+  * Hover nodes and edges for tooltips
+  * Zoom and pan for dense regions
+  * Node size encodes importance (paper count / citation count)
+  * Edge thickness encodes collaboration strength
+  * Color coding by year
+
+---
+
+### Task 2 (T2): Interactive Dashboards (Coordinated Views)
+
+* ✅ **Timeline View**
+
+  * Displays number of papers published per year (2020–2024)
+* ✅ **Histogram View**
+
+  * Shows patent citation distribution
+* ✅ **Linked Interaction**
+
+  * Clicking a year in the timeline filters the histogram
+  * Supports overview + detail exploration
+
+These dashboards provide **temporal and distributional context** that complements the network views.
+
+---
+
+### Task 3 (T3): Network Refinement with Hierarchical Edge Bundling
+
+* ✅ **Author Network Refinement**
+
+  * Refines the author collaboration network to improve readability at scale
+* ✅ **Radial Hierarchical Layout**
+
+  * Authors are arranged around a circle using a hierarchical clustering structure
+* ✅ **Hierarchical Edge Bundling**
+
+  * Individual collaboration edges are bundled into smooth flows
+  * Reduces edge crossings and visual clutter
+* ✅ **Purpose of This View**
+
+  * This visualization is designed as an **overview** of collaboration patterns
+  * Emphasizes **group-level structure and inter-cluster relationships**
+  * Complements the force-directed network used for detailed inspection (T1)
+
+> This view intentionally sacrifices individual-level detail in favor of revealing global structure, following the hierarchical edge bundling technique discussed in class.
+
+---
 
 ## Tech Stack
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **D3.js v7** - Data visualization
-- **Create React App** - Build tooling
+* **React 18** – UI framework
+* **TypeScript** – Type safety and maintainability
+* **D3.js v7** – Data-driven visualizations
+* **Create React App** – Build tooling
+
+---
 
 ## Project Structure
 
@@ -34,46 +107,45 @@ sciscinet-p1-frontend/
 │   ├── index.tsx                  # Entry point
 │   ├── index.css                  # Global styles
 │   ├── components/
-│   │   └── NetworkGraph.tsx      # D3.js network visualization
+│   │   ├── NetworkGraph.tsx       # Force-directed network (T1)
+│   │   ├── HierarchicalBundledGraph.tsx  # Bundled network (T3)
+│   │   ├── Timeline.tsx           # Timeline chart (T2)
+│   │   └── Histogram.tsx          # Histogram chart (T2)
 │   ├── services/
-│   │   └── api.ts                # Backend API calls
+│   │   └── api.ts                 # Backend API calls
 │   └── types/
-│       └── network.ts            # TypeScript interfaces
+│       └── network.ts             # TypeScript interfaces
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
 
+---
+
 ## Setup
 
 ### Prerequisites
 
-- Node.js 16+ installed
-- Backend API running on `http://localhost:5001`
+* Node.js 16+
+* Backend API running at `http://localhost:5001`
 
 ### Installation
 
 ```bash
-# Navigate to frontend directory
 cd sciscinet-p1-frontend
-
-# Install dependencies
 npm install
-
-# Start development server
 npm start
 ```
 
-The app will open at `http://localhost:3000`
+The app will open at `http://localhost:3000`.
+
+---
 
 ## Usage
 
-### 1. Start the Backend First
-
-Make sure your backend is running:
+### 1. Start the Backend
 
 ```bash
-# In the backend directory
 cd ../sciscinet-p1-backend/p1-backend
 python app.py
 ```
@@ -81,145 +153,83 @@ python app.py
 ### 2. Start the Frontend
 
 ```bash
-# In the frontend directory
 npm start
 ```
 
-### 3. Interact with the Visualization
+### 3. Explore the Visualizations
 
-- **Switch Views**: Click buttons to toggle between Author and Citation networks
-- **Drag Nodes**: Click and drag any node to reposition it
-- **Hover**: Hover over nodes/edges to see detailed information
-- **Zoom**: Scroll to zoom in/out
-- **Pan**: Drag the background to pan around
+* **Switch Views**
+
+  * Author Network (T1)
+  * Author Network (Bundled, T3)
+  * Citation Network (T1)
+  * Dashboards (T2)
+* **Interact**
+
+  * Drag nodes in force-directed views
+  * Hover for details
+  * Zoom and pan
+  * Click timeline years to filter histogram
+
+---
 
 ## API Integration
 
-The frontend connects to these backend endpoints:
+The frontend consumes the following endpoints:
 
-- `GET /api/author-network` - Author collaboration data
-- `GET /api/citation-network` - Paper citation data
-- `GET /api/stats` - Network statistics
+* `GET /api/author-network`
+* `GET /api/citation-network`
+* `GET /api/stats`
+* `GET /api/timeline`
+* `GET /api/patent-distribution`
 
-API base URL is configured in `src/services/api.ts`
+API configuration is defined in `src/services/api.ts`.
 
-## Customization
+---
 
-### Changing Network Layout Parameters
+## Performance & Scalability Considerations
 
-Edit `src/components/NetworkGraph.tsx`:
+To handle large networks (1,134 authors, 36,623 collaborations):
 
-```typescript
-const simulation = d3.forceSimulation(nodes)
-  .force('link', d3.forceLink(links)
-    .distance(50))              // Link distance
-  .force('charge', d3.forceManyBody()
-    .strength(-100))            // Repulsion strength
-  .force('center', d3.forceCenter(width / 2, height / 2))
-  .force('collision', d3.forceCollide()
-    .radius(20));               // Collision radius
-```
+* Force-directed layout with collision detection (T1)
+* Visual encoding of importance via node size and edge thickness
+* Zoom and pan for dense regions
+* Hierarchical edge bundling (T3) to reduce clutter and reveal structure
+* Overview + detail design across multiple coordinated views
 
-### Changing Node Colors
+---
 
-In `NetworkGraph.tsx`, modify the color scale:
-
-```typescript
-.attr('fill', (d: any) => {
-  const colorScale = d3.scaleSequential(d3.interpolateViridis)
-    .domain([2020, 2024]);
-  return colorScale(d.year);
-})
-```
-
-### Changing Node Sizes
-
-Modify the radius calculation:
-
-```typescript
-.attr('r', (d: any) => {
-  const size = d.paperCount || d.citationCount || 1;
-  return Math.min(5 + Math.sqrt(size) * 3, 30);  // Adjust multiplier
-})
-```
-
-## Building for Production
-
-```bash
-# Create optimized production build
-npm run build
-
-# The build folder will contain the production-ready files
-# Deploy the contents of the build/ folder to your web server
-```
-
-## Troubleshooting
-
-### "Failed to fetch" Error
-
-**Problem**: Frontend can't connect to backend
-
-**Solution**:
-1. Ensure backend is running on port 5001
-2. Check the API URL in `src/services/api.ts`
-3. Verify CORS is enabled in backend
-
-### Port 3000 Already in Use
-
-```bash
-# Kill process on port 3000
-lsof -ti:3000 | xargs kill -9
-
-# Or use a different port
-PORT=3001 npm start
-```
-
-### TypeScript Errors
-
-```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## Performance Considerations
-
-For large networks (>1000 nodes):
-
-1. **Limit visible nodes**: Filter to top N nodes by importance
-2. **Reduce link count**: Show only strong connections
-3. **Optimize rendering**: Use canvas instead of SVG for very large graphs
-4. **Add pagination**: Load network data incrementally
-
-## Browser Support
-
-- Chrome 90+ ✅
-- Firefox 88+ ✅
-- Safari 14+ ✅
-- Edge 90+ ✅
-
-## Assignment Completion
+## Assignment Completion Summary
 
 ### Task 1 (T1) ✅
-- [x] Author collaboration network with force-directed layout
-- [x] Paper citation network with force-directed layout
-- [x] Draggable nodes
-- [x] Hoverable nodes and edges with tooltips
-- [x] Clear titles and legends
-- [x] Responsive design
 
-### Scalability Solution
-For the large number of data points (1,134 authors, 36,623 collaborations):
-- Implemented force simulation with collision detection
-- Node size varies based on importance (paper count)
-- Edge thickness represents collaboration strength
-- Zoom/pan functionality for exploring dense areas
-- Tooltip on demand to reduce visual clutter
+* [x] Author collaboration network (force-directed)
+* [x] Citation network (force-directed)
+* [x] Interactive exploration (drag, hover, zoom, pan)
+
+### Task 2 (T2) ✅
+
+* [x] Timeline view
+* [x] Histogram view
+* [x] Coordinated interaction between views
+
+### Task 3 (T3) ✅
+
+* [x] Refined author network using hierarchical edge bundling
+* [x] Radial hierarchical layout
+* [x] Reduced edge crossings and improved scalability
+* [x] Clear distinction between overview (T3) and detail (T1)
+
+---
 
 ## Author
 
-Carol Zhang - UCSD MS in Computer Science
+**Carol Zhang**
+M.S. in Computer Science, UC San Diego
+
+---
 
 ## License
 
-This project is for educational purposes as part of a coding assignment.
+This project is for educational purposes as part of a course assignment.
+
