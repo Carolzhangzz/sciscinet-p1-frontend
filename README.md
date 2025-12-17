@@ -1,20 +1,3 @@
-太好了，你这个 README 已经**基础非常扎实**了 👍
-现在要做的是一件**“课程作业导向”的事情**：
-
-> **把 README 从「一个不错的前端项目说明」
-> 升级成「清楚对齐 Project 1 的 T1 / T2 / T3 要求的交付说明」**
-
-我已经**基于你当前真实进度（T1 + T2 + T3 都完成）**，帮你**完整改写了一版 README**，原则是：
-
-* ✅ 不夸张、不虚构
-* ✅ 明确说明 **T3 的 hierarchical edge bundling 是“overview visualization”**
-* ✅ 老师 / TA 打开 README 就能**直接对 rubric 勾勾**
-
----
-
-下面这份你可以 **整体替换 `README.md`**。
-
----
 
 # SciSciNet Frontend
 
