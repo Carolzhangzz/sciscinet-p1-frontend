@@ -1,8 +1,18 @@
-// src/services/api.ts
+// src/services/api.ts - UPDATED with T2 endpoints
 
 import { NetworkData, APIStats } from '../types/network';
 
 const API_BASE_URL = 'http://localhost:5001/api';
+
+export interface TimelineData {
+  year: number;
+  count: number;
+}
+
+export interface PatentDistribution {
+  patent_count: number;
+  frequency: number;
+}
 
 export const api = {
   async getAuthorNetwork(): Promise<NetworkData> {
@@ -25,6 +35,27 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/stats`);
     if (!response.ok) {
       throw new Error('Failed to fetch stats');
+    }
+    return response.json();
+  },
+
+  // NEW: T2 endpoints
+  async getTimeline(): Promise<TimelineData[]> {
+    const response = await fetch(`${API_BASE_URL}/timeline`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch timeline');
+    }
+    return response.json();
+  },
+
+  async getPatentDistribution(year?: number): Promise<PatentDistribution[]> {
+    const url = year 
+      ? `${API_BASE_URL}/patent-distribution/${year}`
+      : `${API_BASE_URL}/patent-distribution`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch patent distribution');
     }
     return response.json();
   }

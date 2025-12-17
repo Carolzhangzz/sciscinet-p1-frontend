@@ -1,18 +1,25 @@
-// src/App.tsx - OPTIMIZED LAYOUT
+// src/App.tsx - WITH T2 DASHBOARDS
 
 import React, { useState, useEffect } from 'react';
 import NetworkGraph from './components/NetworkGraph';
-import { api } from './services/api';
+import Timeline from './components/Timeline';
+import Histogram from './components/Histogram';
+import { api, TimelineData, PatentDistribution } from './services/api';
 import { NetworkData, APIStats } from './types/network';
 import './App.css';
+
+type ViewType = 'author' | 'citation' | 'dashboards';
 
 function App() {
   const [authorNetwork, setAuthorNetwork] = useState<NetworkData | null>(null);
   const [citationNetwork, setCitationNetwork] = useState<NetworkData | null>(null);
   const [stats, setStats] = useState<APIStats | null>(null);
+  const [timeline, setTimeline] = useState<TimelineData[]>([]);
+  const [patentDist, setPatentDist] = useState<PatentDistribution[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'author' | 'citation'>('author');
+  const [activeView, setActiveView] = useState<ViewType>('author');
 
   useEffect(() => {
     loadData();
@@ -23,20 +30,34 @@ function App() {
       setLoading(true);
       setError(null);
 
-      const [authorData, citationData, statsData] = await Promise.all([
+      const [authorData, citationData, statsData, timelineData, patentData] = await Promise.all([
         api.getAuthorNetwork(),
         api.getCitationNetwork(),
-        api.getStats()
+        api.getStats(),
+        api.getTimeline(),
+        api.getPatentDistribution()
       ]);
 
       setAuthorNetwork(authorData);
       setCitationNetwork(citationData);
       setStats(statsData);
+      setTimeline(timelineData);
+      setPatentDist(patentData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
       console.error('Error loading data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleYearClick = async (year: number) => {
+    setSelectedYear(year);
+    try {
+      const yearPatentDist = await api.getPatentDistribution(year);
+      setPatentDist(yearPatentDist);
+    } catch (err) {
+      console.error('Error loading year patent distribution:', err);
     }
   };
 
@@ -67,11 +88,9 @@ function App() {
     );
   }
 
-  const currentNetwork = activeView === 'author' ? authorNetwork : citationNetwork;
-
   return (
     <div className="App">
-      {/* Compact Header */}
+      {/* Header */}
       <header className="App-header">
         <div>
           <h1>🔬 SciSciNet Visualization</h1>
@@ -79,11 +98,11 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content - Horizontal Layout */}
+      {/* Main Content */}
       <div className="main-content">
-        {/* Left Sidebar - Stats & Controls */}
+        {/* Sidebar */}
         <aside className="sidebar">
-          {/* Stats Card */}
+          {/* Stats */}
           {stats && (
             <div className="stat-card">
               <h3>📊 Statistics</h3>
@@ -116,96 +135,136 @@ function App() {
               className={activeView === 'author' ? 'active' : ''}
               onClick={() => setActiveView('author')}
             >
-              👥 Author Collaboration
+              👥 Author Network
             </button>
             <button
               className={activeView === 'citation' ? 'active' : ''}
               onClick={() => setActiveView('citation')}
             >
-              📄 Paper Citation
+              📄 Citation Network
+            </button>
+            <button
+              className={activeView === 'dashboards' ? 'active' : ''}
+              onClick={() => setActiveView('dashboards')}
+            >
+              📊 Dashboards (T2)
             </button>
           </div>
 
-          {/* Network Info */}
+          {/* Info */}
           <div className="network-info-card">
             <h3>
-              {activeView === 'author' ? '👥 Author Network' : '📄 Citation Network'}
+              {activeView === 'author' && '👥 Author Network'}
+              {activeView === 'citation' && '📄 Citation Network'}
+              {activeView === 'dashboards' && '📊 Interactive Dashboards'}
             </h3>
             <p>
-              {activeView === 'author' 
-                ? `Collaborations between ${authorNetwork?.nodes.length || 0} authors based on ${authorNetwork?.metadata?.total_papers || 0} CS papers from UCSD.`
-                : `Citation relationships between ${citationNetwork?.nodes.length || 0} papers. Colors indicate publication year.`
-              }
+              {activeView === 'author' && 
+                `Collaborations between ${authorNetwork?.nodes.length || 0} authors.`}
+              {activeView === 'citation' && 
+                `Citations between ${citationNetwork?.nodes.length || 0} papers.`}
+              {activeView === 'dashboards' && 
+                'Timeline and patent distribution charts. Click a year to filter.'}
             </p>
-            
-            <div className="scalability-info">
-              <strong>⚙️ Scalability Solution</strong>
-              <p>
-                Handling {currentNetwork?.nodes.length.toLocaleString() || 0} nodes and{' '}
-                {currentNetwork?.links.length.toLocaleString() || 0} edges through optimized 
-                force simulation, reduced opacity, and efficient collision detection.
-              </p>
-            </div>
           </div>
         </aside>
 
         {/* Main Visualization Area */}
         <main className="visualization-area">
-          <div className="viz-header">
-            <h2>
-              {activeView === 'author' 
-                ? 'Author Collaboration Network' 
-                : 'Paper Citation Network'}
-            </h2>
-          </div>
+          {/* T1: Networks */}
+          {activeView === 'author' && authorNetwork && (
+            <>
+              <div className="viz-header">
+                <h2>Author Collaboration Network</h2>
+              </div>
+              <div className="viz-content">
+                <NetworkGraph
+                  data={authorNetwork}
+                  title=""
+                  nodeLabel={(node) => node.name || ''}
+                  nodeTooltip={(node) => `
+                    <strong>${node.name}</strong><br/>
+                    Papers: ${node.paperCount || 0}
+                  `}
+                />
+              </div>
+              <div className="tips-panel">
+                <strong>💡 Tips:</strong>
+                <ul>
+                  <li>Drag nodes</li>
+                  <li>Hover for details</li>
+                  <li>Scroll to zoom</li>
+                  <li>Drag to pan</li>
+                </ul>
+              </div>
+            </>
+          )}
 
-          <div className="viz-content">
-            {activeView === 'author' && authorNetwork && (
-              <NetworkGraph
-                data={authorNetwork}
-                title=""
-                nodeLabel={(node) => node.name || ''}
-                nodeTooltip={(node) => `
-                  <strong>${node.name}</strong><br/>
-                  Papers: ${node.paperCount || 0}<br/>
-                  ID: ${node.id}
-                `}
-                linkTooltip={(link) => `
-                  Collaborations: ${(link as any).weight || 1}
-                `}
-              />
-            )}
+          {activeView === 'citation' && citationNetwork && (
+            <>
+              <div className="viz-header">
+                <h2>Paper Citation Network</h2>
+              </div>
+              <div className="viz-content">
+                <NetworkGraph
+                  data={citationNetwork}
+                  title=""
+                  nodeLabel={(node) => node.title?.substring(0, 20) + '...' || ''}
+                  nodeTooltip={(node) => `
+                    <strong>${node.title}</strong><br/>
+                    Year: ${node.year}<br/>
+                    Citations: ${node.citationCount || 0}
+                  `}
+                />
+              </div>
+              <div className="tips-panel">
+                <strong>💡 Tips:</strong>
+                <ul>
+                  <li>Drag nodes</li>
+                  <li>Hover for details</li>
+                  <li>Colors = year</li>
+                  <li>Size = citations</li>
+                </ul>
+              </div>
+            </>
+          )}
 
-            {activeView === 'citation' && citationNetwork && (
-              <NetworkGraph
-                data={citationNetwork}
-                title=""
-                nodeLabel={(node) => node.title?.substring(0, 20) + '...' || ''}
-                nodeTooltip={(node) => `
-                  <strong>${node.title}</strong><br/>
-                  Year: ${node.year}<br/>
-                  Citations: ${node.citationCount || 0}<br/>
-                  ID: ${node.id}
-                `}
-              />
-            )}
-          </div>
-
-          <div className="tips-panel">
-            <strong>💡 Interaction Tips:</strong>
-            <ul>
-              <li>Drag nodes to rearrange</li>
-              <li>Hover for details</li>
-              <li>Scroll to zoom</li>
-              <li>Drag background to pan</li>
-              <li>Node size = importance</li>
-              <li>Edge thickness = strength</li>
-            </ul>
-          </div>
+          {/* T2: Dashboards */}
+          {activeView === 'dashboards' && (
+            <>
+              <div className="viz-header">
+                <h2>Interactive Dashboards</h2>
+              </div>
+              <div className="dashboards-container">
+                <div className="dashboard-row">
+                  <Timeline
+                    data={timeline}
+                    onYearClick={handleYearClick}
+                    selectedYear={selectedYear}
+                  />
+                </div>
+                <div className="dashboard-row">
+                  <Histogram
+                    data={patentDist}
+                    selectedYear={selectedYear}
+                  />
+                </div>
+              </div>
+              <div className="tips-panel">
+                <strong>💡 Interaction:</strong>
+                <ul>
+                  <li>Click a year in timeline to filter histogram</li>
+                  <li>Hover bars to see details</li>
+                  <li>Timeline shows paper count per year (2020-2024)</li>
+                  <li>Histogram shows patent citation distribution</li>
+                </ul>
+              </div>
+            </>
+          )}
         </main>
       </div>
 
-      {/* Compact Footer */}
+      {/* Footer */}
       <footer className="App-footer">
         <p>
           Project 1: Full-Stack Web Development | UCSD Design Lab | 
