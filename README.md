@@ -214,5 +214,5 @@ M.S. in Computer Science, UC San Diego
 
 ## License
 
-This project is for educational purposes as part of a course assignment.
+This project is for educational purposes as part of a coding test.
 
